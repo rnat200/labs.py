@@ -1,0 +1,49 @@
+import math
+class Fraction:
+    def __init__(self, numerator: int, denominator: int = 1):
+        if denominator == 0:
+            raise ValueError("на 0 нельзя делить")
+
+        gcd_val = math.gcd(abs(numerator), abs(denominator))
+
+        sign = -1 if (numerator * denominator) < 0 else 1
+
+        self.num = sign * (abs(numerator) // gcd_val)
+        self.den = abs(denominator) // gcd_val
+
+    def __str__(self) -> str:
+        if self.den == 1:
+            return str(self.num)
+        return f"{self.num}/{self.den}"
+
+    def __repr__(self) -> str:
+        return f"Fraction({self.num}, {self.den})"
+
+    def __add__(self, other: "Fraction") -> "Fraction":
+        new_num = self.num * other.den + other.num * self.den
+        new_den = self.den * other.den
+        return Fraction(new_num, new_den)
+
+    def __sub__(self, other: "Fraction") -> "Fraction":
+        new_num = self.num * other.den - other.num * self.den
+        new_den = self.den * other.den
+        return Fraction(new_num, new_den)
+
+    def __mul__(self, other: "Fraction") -> "Fraction":
+        return Fraction(self.num * other.num, self.den * other.den)
+
+    def __truediv__(self, other: "Fraction") -> "Fraction":
+        return Fraction(self.num * other.den, self.den * other.num)
+
+
+
+f1 = Fraction(2, 4)
+f2 = Fraction(3, 5)
+
+print(f"Дробь 1: {f1}")
+print(f"Дробь 2: {f2}")
+
+print(f"{f1} + {f2} = {f1 + f2}")
+print(f"{f1} - {f2} = {f1 - f2}")
+print(f"{f1} * {f2} = {f1 * f2}")
+print(f"{f1} / {f2} = {f1 / f2}")
