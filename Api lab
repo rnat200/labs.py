@@ -1,0 +1,52 @@
+import requests
+
+
+
+def fetch_weather_data(city: str) -> str:
+
+    try:
+        geocoding_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1&language=ru"
+        geo_response = requests.get(geocoding_url, timeout=10).json()
+
+        if not geo_response.get("results"):
+            print(f"Координаты для города '{city}' не найдены.")
+            return f"Не удалось определить координаты для локации: {city}."
+
+        location_data = geo_response["results"][0]
+        lat = location_data.get("latitude")
+        lon = location_data.get("longitude")
+        resolved_city_name = location_data.get("name")
+
+        weather_url = (
+            f"https://api.open-meteo.com/v1/forecast?"
+            f"latitude={lat}&longitude={lon}&"
+            f"current=temperature_2m,apparent_temperature,wind_speed_10m"
+        )
+        weather_response = requests.get(weather_url, timeout=10).json()
+
+        current = weather_response.get("current", {})
+        temp_now = current.get("temperature_2m")
+        feels_like = current.get("apparent_temperature")
+        wind_speed = current.get("wind_speed_10m")
+
+        return (
+            f"Локация: {resolved_city_name}.\n"
+            f"Прямо сейчас: {temp_now}°C (ощущается как {feels_like}°C), ветер {wind_speed} км/ч.\n"
+        )
+
+    except requests.RequestException as req_err:
+        print(f"Ошибка сетевого запроса к API погоды: {req_err}")
+        return f"Сетевая ошибка при обращении к API: {req_err}"
+    except Exception as e:
+        print(f"Неожиданная ошибка при обработке погодных данных: {e}", exc_info=True)
+        return f"Внутренняя ошибка обработки: {e}"
+
+
+
+TARGET_CITY = input("Введите название города для поиска погоды в нем\n")
+wether_result = fetch_weather_data(TARGET_CITY)
+print(wether_result)
+
+
+
+
